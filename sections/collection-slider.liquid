@@ -1,0 +1,222 @@
+{% assign arrow_color = section.settings.arrow_color %}
+<style>
+  .collection_slider_wrap{
+	width:100%;
+  }
+  .slider_title{
+    font-size:1.25em;
+    font-family:var(--font-stack-header);
+    width:90%;
+    text-align:center;
+    margin:auto;
+    font-weight:bold;
+    margin-top:10px;
+  }
+  .collection_slider_wrap .swiper-button-next{
+    color:{{ arrow_color }}
+  }
+  
+  .collection_slider_wrap .swiper-button-prev{
+    color:{{ arrow_color }}
+  }
+  
+  .slider_img{
+    margin:auto;
+    width:90%;
+    padding-bottom:75%;
+    background-size:cover;
+    background-position:center;
+  }
+    
+   .slider_price{
+     text-align:center;
+	 width:100%;
+     margin-top:10px;
+     font-size:1.25em;
+   }
+  
+   .slider_heading{
+     font-size:1.5em;
+     font-weight:bold;
+     text-align:center;
+     margin-bottom:20px;
+   }
+  
+  .swiper-button-prev-{{ section.id }}{
+    height:50px;
+    width:50px;
+    background:blue;
+  }
+</style>
+
+{% assign collection = collections[section.settings.collection] %}
+{% assign product_limit = section.settings.limit %}
+{% assign tablet_view = section.settings.tablet_products %}
+{% assign mobile_view = section.settings.mobile_products %}
+{% assign show_price = section.settings.show_price %}
+{% assign slider_title = section.settings.title %}
+
+<div class="collection_slider_wrap">
+  <div class="slider_heading">{{ slider_title }}</div>
+<div class="swiper-container swiper-container-{{ section.id }}" data-mobile="{{mobile_view}}" data-tablet="{{tablet_view}}" data-id="{{ section.id }}">
+    <!-- Additional required wrapper -->
+    <div class="swiper-wrapper">
+        <!-- Slides -->
+      {% for product in collection.products limit: product_limit %}
+        <div class="swiper-slide">
+          <a href="{{ product.url }}">
+            <div class="slider_img" style="background-image:url({{ product.featured_image | product_img_url: 'large' }} );">           
+            </div>
+          </a>
+          <div class="slider_title">
+            <a href="{{ product.url }}">
+            {{ product.title }}
+              </a>
+          </div>
+          {% if show_price == true %}
+          <div class="slider_price">
+            <a href="{{ product.url }}">
+            {{ product.price_min | money_with_currency }}
+              </a>
+          </div>
+          {% endif %}
+      	</div>
+      {% endfor %}
+    </div>
+  
+
+    <!-- If we need navigation buttons -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+
+</div>
+</div>
+{% schema %}
+  {
+    "name": "Collection Slider",
+    "settings": [{
+      "id": "collection",
+      "type": "collection",
+      "label": {
+        "en": "Collection"
+      }
+    },
+	{
+       "type": "header",
+       "content": {
+			"en":"Layout"
+		}
+    },
+	{
+      "type": "range",
+      "id": "limit",
+      "label": {
+        "en": "Amount of Products"
+      },
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "default": 4
+    },
+	{
+      "type": "select",
+      "id": "tablet_products",
+      "label": {
+        "en": "Visible Products on Tablet"
+      },
+      "options": [
+      {
+       "value": "1",
+       "label": "1"
+      },
+      {
+       "value": "2",
+       "label": "2"
+      },
+      {
+       "value": "3",
+       "label": "3"
+      },
+      {
+       "value": "4",
+       "label": "4"
+      }
+	],
+   "default":   "3"
+	},
+	{
+      "type": "select",
+      "id": "mobile_products",
+      "label": {
+        "en": "Visible Products on Mobile"
+      },
+      "options": [
+      {
+       "value": "1",
+       "label": "1"
+      },
+      {
+       "value": "2",
+       "label": "2"
+      }
+   ],
+   "default":   "1"
+    },
+    {
+       "type": "color",
+       "id": "arrow_color",
+       "label": "Navigation Color",
+       "default": "#222"
+    },
+    {
+       "type": "checkbox",
+       "id": "show_price",
+       "default": true,
+       "label": "Show Price"
+    },
+    {
+       "type":      "text",
+       "id":        "title",
+       "label":     "Slider Title",
+       "default":   "Featured Collection"
+    }],
+  "presets": [
+    {
+      "name": "Collection Slider",
+      "category": "Product"
+    }
+  ]
+  }
+{% endschema %}
+
+<script>
+ 
+   window.addEventListener('load', (event) => {
+     addSwiper({{section.id}});
+   });
+  
+
+
+  //add listeners to reload swiper on theme editor change
+  document.addEventListener("shopify:section:load", function(event) {
+    if(event.detail.sectionId == '{{section.id}}') {
+       addSwiper(event.detail.sectionId);
+    }
+                            
+  });
+ 
+  
+  //add listeners to reload swiper on theme editor save
+  document.addEventListener("shopify:section:select", function(event) {
+    if(event.detail.sectionId == '{{section.id}}') {
+       addSwiper(event.detail.sectionId);
+    }
+    if(event.detail.load == true) {
+       addSwiper(event.detail.sectionId);
+    }
+                            
+  });
+  
+
+
+</script>
